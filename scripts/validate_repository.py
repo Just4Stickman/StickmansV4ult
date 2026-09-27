@@ -1,3 +1,4 @@
+```python
 from pathlib import Path
 import re
 import sys
@@ -6,10 +7,25 @@ ROOT = Path(__file__).resolve().parents[1]
 errors = []
 
 required_files = [
-    "README.md", "LICENSE", ".gitignore", ".editorconfig",
-    "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md"
+    "README.md",
+    "LICENSE",
+    ".gitignore",
+    ".editorconfig",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
 ]
-required_dirs = ["templates", "tools", "snippets", "workflows", "configs", "docs", "scripts", ".github"]
+
+required_dirs = [
+    "templates",
+    "tools",
+    "snippets",
+    "workflows",
+    "configs",
+    "docs",
+    "scripts",
+    ".github",
+]
 
 for f in required_files:
     if not (ROOT / f).is_file():
@@ -21,13 +37,32 @@ for d in required_dirs:
 
 for meta in (ROOT / "templates").rglob("template.yml"):
     text = meta.read_text(encoding="utf-8")
-    for key in ["id:", "name:", "slug:", "version:", "status:", "difficulty:", "categories:", "languages:", "license:"]:
+
+    for key in [
+        "id:",
+        "name:",
+        "slug:",
+        "version:",
+        "status:",
+        "difficulty:",
+        "categories:",
+        "languages:",
+        "license:",
+    ]:
         if not re.search(rf"^{re.escape(key)}", text, re.MULTILINE):
             errors.append(f"{meta}: missing {key}")
+
     if not (meta.parent / "README.md").exists():
         errors.append(f"{meta.parent}: missing README.md")
+
     m = re.search(r"^difficulty:\s*(\S+)", text, re.MULTILINE)
-    if m and m.group(1) not in {"beginner","intermediate","advanced","professional"}:
+
+    if m and m.group(1) not in {
+        "beginner",
+        "intermediate",
+        "advanced",
+        "professional",
+    }:
         errors.append(f"{meta}: invalid difficulty")
 
 bad_patterns = [
@@ -36,15 +71,34 @@ bad_patterns = [
     re.compile(r"\bsk-[A-Za-z0-9]{30,}\b"),
 ]
 
+current_file = Path(__file__).resolve()
+
 for p in ROOT.rglob("*"):
     if not p.is_file() or ".git" in p.parts:
         continue
-    if p.suffix.lower() not in {".md",".txt",".yml",".yaml",".json",".js",".ts",".py",".sh",".env"}:
+
+    if p.resolve() == current_file:
         continue
+
+    if p.suffix.lower() not in {
+        ".md",
+        ".txt",
+        ".yml",
+        ".yaml",
+        ".json",
+        ".js",
+        ".ts",
+        ".py",
+        ".sh",
+        ".env",
+    }:
+        continue
+
     try:
         text = p.read_text(encoding="utf-8")
     except UnicodeDecodeError:
         continue
+
     for pattern in bad_patterns:
         if pattern.search(text):
             errors.append(f"possible secret in {p}")
@@ -55,3 +109,26 @@ if errors:
     raise SystemExit(1)
 
 print("Validation passed.")
+```
+
+Danach in PowerShell:
+
+```powershell
+python scripts/validate_repository.py
+```
+
+Wenn kommt:
+
+```text
+Validation passed.
+```
+
+dann:
+
+```powershell
+git add scripts/validate_repository.py
+git commit -m "Fix repository validation"
+git push
+```
+
+Dann startet GitHub Actions erneut und sollte den vorherigen Fehler nicht mehr wegen dieser Datei bekommen.
