@@ -1,0 +1,21 @@
+id: background-worker
+name: Background Job Worker
+slug: background-worker
+version: 1.0.0
+status: beta
+difficulty: advanced
+categories:
+  - automation
+  - workers
+  - backend
+languages:
+  - javascript
+frameworks:
+  - node
+features:
+  - queue-abstraction
+  - retries
+  - graceful-shutdown
+  - health
+  - tests
+license: SV4OL

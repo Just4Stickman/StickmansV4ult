@@ -1,0 +1,19 @@
+id: static-site
+name: Accessible Static Website
+slug: static-site
+version: 1.0.0
+status: stable
+difficulty: beginner
+categories:
+  - web
+  - frontend
+languages:
+  - html
+  - css
+  - javascript
+features:
+  - responsive
+  - accessible
+  - vanilla-js
+  - no-build
+license: SV4OL

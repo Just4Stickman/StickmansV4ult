@@ -1,0 +1,18 @@
+id: browser-extension
+name: Browser Extension Starter
+slug: browser-extension
+version: 1.0.0
+status: stable
+difficulty: intermediate
+categories:
+  - browser
+  - automation
+  - frontend
+languages:
+  - javascript
+features:
+  - manifest-v3
+  - popup
+  - content-script
+  - storage
+license: SV4OL

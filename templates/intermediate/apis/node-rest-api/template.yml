@@ -1,0 +1,23 @@
+id: node-rest-api
+name: Node REST API
+slug: node-rest-api
+version: 1.0.0
+status: stable
+difficulty: intermediate
+categories:
+  - api
+  - web
+  - developer-tools
+languages:
+  - javascript
+frameworks:
+  - node
+features:
+  - REST
+  - health-endpoint
+  - validation
+  - tests
+  - docker
+deployment:
+  - docker
+license: SV4OL

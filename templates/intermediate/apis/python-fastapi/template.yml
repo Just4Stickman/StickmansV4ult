@@ -1,0 +1,21 @@
+id: python-fastapi
+name: Python FastAPI Service
+slug: python-fastapi
+version: 1.0.0
+status: stable
+difficulty: intermediate
+categories:
+  - api
+  - python
+  - web
+languages:
+  - python
+frameworks:
+  - fastapi
+features:
+  - REST
+  - validation
+  - OpenAPI
+  - tests
+  - Docker
+license: SV4OL

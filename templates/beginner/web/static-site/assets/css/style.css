@@ -1,0 +1,7 @@
+:root { font-family: system-ui, sans-serif; line-height: 1.6; }
+body { margin: 0; max-width: 70rem; margin-inline: auto; padding: 1rem; }
+nav { display:flex; gap:1rem; padding-block:1rem; }
+.hero { padding-block:8rem; max-width:50rem; }
+.button { display:inline-block; padding:.7rem 1rem; border:1px solid currentColor; border-radius:.5rem; text-decoration:none; }
+.skip-link { position:absolute; left:-9999px; }
+.skip-link:focus { left:1rem; top:1rem; }

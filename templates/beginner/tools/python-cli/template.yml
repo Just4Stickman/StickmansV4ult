@@ -1,0 +1,16 @@
+id: python-cli
+name: Python CLI Starter
+slug: python-cli
+version: 1.0.0
+status: stable
+difficulty: beginner
+categories:
+  - cli
+  - developer-tools
+languages:
+  - python
+features:
+  - command-line
+  - argparse
+  - tests
+license: SV4OL

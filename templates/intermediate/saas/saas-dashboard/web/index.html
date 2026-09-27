@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>SaaS Dashboard</title></head>
+<body>
+<header><h1>SaaS Dashboard</h1></header>
+<main>
+<section id="organization"></section>
+<section><h2>Settings</h2><pre id="settings"></pre></section>
+</main>
+<script>
+fetch("/api/dashboard").then(r=>r.json()).then(data=>{
+ document.querySelector("#organization").innerHTML=`<h2>${data.organization.name}</h2><p>Plan: ${data.organization.plan}</p>`;
+ document.querySelector("#settings").textContent=JSON.stringify(data.settings,null,2);
+});
+</script>
+</body>
+</html>

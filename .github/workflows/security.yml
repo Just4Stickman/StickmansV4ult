@@ -1,0 +1,24 @@
+name: Security Checks
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check obvious private-key files
+        shell: bash
+        run: |
+          set -e
+          if find . -type f \( -name "*.pem" -o -name "*.key" -o -name "*.p12" -o -name "*.pfx" \) -not -path "./.git/*" | grep -q .; then
+            echo "Potential credential/certificate files found."
+            exit 1
+          fi

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>AI Chatbot</title></head>
+<body>
+<main>
+<h1>AI Chatbot</h1>
+<form id="chat"><input id="message" required autocomplete="off"><button>Send</button></form>
+<pre id="output"></pre>
+</main>
+<script>
+const form=document.querySelector("#chat"), input=document.querySelector("#message"), output=document.querySelector("#output");
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const response=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({message:input.value})});
+  const data=await response.json();
+  output.textContent=data.reply||data.error;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "StickmansV4ult Extension Starter",
+  "version": "1.0.0",
+  "description": "A reusable Manifest V3 extension starter.",
+  "permissions": ["storage"],
+  "action": {"default_popup": "popup.html"},
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }]
+}

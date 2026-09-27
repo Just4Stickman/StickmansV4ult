@@ -1,0 +1,21 @@
+id: ai-chatbot
+name: AI Chatbot Starter
+slug: ai-chatbot
+version: 1.0.0
+status: stable
+difficulty: intermediate
+categories:
+  - ai
+  - web
+  - api
+languages:
+  - javascript
+frameworks:
+  - node
+features:
+  - chat-ui
+  - provider-adapter
+  - API
+  - tests
+  - Docker
+license: SV4OL

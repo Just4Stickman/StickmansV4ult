@@ -1,0 +1,25 @@
+id: modular-backend
+name: Modular SaaS Backend
+slug: modular-backend
+version: 1.0.0
+status: experimental
+difficulty: professional
+categories:
+  - saas
+  - api
+  - backend
+  - architecture
+languages:
+  - typescript
+frameworks:
+  - node
+features:
+  - modules
+  - health
+  - configuration
+  - logging
+  - testing
+  - Docker
+deployment:
+  - docker
+license: SV4OL

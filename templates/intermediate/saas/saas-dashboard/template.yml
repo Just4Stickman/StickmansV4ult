@@ -1,0 +1,20 @@
+id: saas-dashboard
+name: SaaS Dashboard Starter
+slug: saas-dashboard
+version: 1.0.0
+status: beta
+difficulty: intermediate
+categories:
+  - saas
+  - web
+  - dashboard
+languages:
+  - typescript
+frameworks:
+  - node
+features:
+  - dashboard
+  - organizations
+  - settings
+  - API
+license: SV4OL
