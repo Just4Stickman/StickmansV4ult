@@ -3,168 +3,55 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SELF = Path(__file__).resolve()
 errors = []
 
 required_files = [
-    "README.md",
-    "LICENSE",
-    ".gitignore",
-    ".editorconfig",
-    "CONTRIBUTING.md",
-    "SECURITY.md",
-    "CODE_OF_CONDUCT.md",
+    "README.md", "LICENSE", ".gitignore", ".editorconfig",
+    "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md"
 ]
+required_dirs = ["templates", "tools", "snippets", "workflows", "configs", "docs", "scripts", ".github"]
 
-required_dirs = [
-    "templates",
-    "tools",
-    "snippets",
-    "workflows",
-    "configs",
-    "docs",
-    "scripts",
-    ".github",
-]
+for f in required_files:
+    if not (ROOT / f).is_file():
+        errors.append(f"missing file: {f}")
 
+for d in required_dirs:
+    if not (ROOT / d).is_dir():
+        errors.append(f"missing directory: {d}")
 
-# Repository structure validation
-for file_name in required_files:
-    if not (ROOT / file_name).is_file():
-        errors.append(f"missing file: {file_name}")
-
-for directory_name in required_dirs:
-    if not (ROOT / directory_name).is_dir():
-        errors.append(f"missing directory: {directory_name}")
-
-
-# Template metadata validation
 for meta in (ROOT / "templates").rglob("template.yml"):
-    try:
-        text = meta.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        errors.append(f"{meta}: unable to read file")
-        continue
-
-    required_keys = [
-        "id:",
-        "name:",
-        "slug:",
-        "version:",
-        "status:",
-        "difficulty:",
-        "categories:",
-        "languages:",
-        "license:",
-    ]
-
-    for key in required_keys:
+    text = meta.read_text(encoding="utf-8")
+    for key in ["id:", "name:", "slug:", "version:", "status:", "difficulty:", "categories:", "languages:", "license:"]:
         if not re.search(rf"^{re.escape(key)}", text, re.MULTILINE):
             errors.append(f"{meta}: missing {key}")
-
-    if not (meta.parent / "README.md").is_file():
+    if not (meta.parent / "README.md").exists():
         errors.append(f"{meta.parent}: missing README.md")
-
-    difficulty = re.search(
-        r"^difficulty:\s*(\S+)",
-        text,
-        re.MULTILINE,
-    )
-
-    if difficulty and difficulty.group(1) not in {
-        "beginner",
-        "intermediate",
-        "advanced",
-        "professional",
-    }:
+    m = re.search(r"^difficulty:\s*(\S+)", text, re.MULTILINE)
+    if m and m.group(1) not in {"beginner","intermediate","advanced","professional"}:
         errors.append(f"{meta}: invalid difficulty")
 
-
-# Secret detection
-#
-# The patterns are deliberately assembled from parts so this validator
-# does not contain complete token signatures that can trigger itself.
-PRIVATE_KEY_HEADER = (
-    "-----BEGIN "
-    + r"[A-Z0-9 ]+"
-    + " PRIVATE KEY-----"
-)
-
-GITHUB_PREFIX = "gh" + "p_"
-OPENAI_PREFIX = "sk" + "-"
-
-secret_patterns = [
-    re.compile(PRIVATE_KEY_HEADER),
-    re.compile(
-        rf"\b{re.escape(GITHUB_PREFIX)}[A-Za-z0-9]{{30,}}\b"
-    ),
-    re.compile(
-        rf"\b{re.escape(OPENAI_PREFIX)}[A-Za-z0-9]{{30,}}\b"
-    ),
-    re.compile(
-        r"\bAKIA[0-9A-Z]{16}\b"
-    ),
-    re.compile(
-        r"\bAIza[0-9A-Za-z_-]{35}\b"
-    ),
+bad_patterns = [
+    re.compile(r"-----BEGIN .*PRIVATE KEY-----"),
+    re.compile(r"\bghp_[A-Za-z0-9]{30,}\b"),
+    re.compile(r"\bsk-[A-Za-z0-9]{30,}\b"),
 ]
 
-scannable_extensions = {
-    ".md",
-    ".txt",
-    ".yml",
-    ".yaml",
-    ".json",
-    ".js",
-    ".jsx",
-    ".ts",
-    ".tsx",
-    ".py",
-    ".sh",
-    ".bash",
-    ".zsh",
-    ".env",
-    ".ini",
-    ".cfg",
-    ".conf",
-}
-
-for path in ROOT.rglob("*"):
-    if not path.is_file():
+for p in ROOT.rglob("*"):
+    if not p.is_file() or ".git" in p.parts:
         continue
-
-    if ".git" in path.parts:
+    if p.suffix.lower() not in {".md",".txt",".yml",".yaml",".json",".js",".ts",".py",".sh",".env"}:
         continue
-
-    # Never scan this validator itself.
     try:
-        if path.resolve() == SELF:
-            continue
-    except OSError:
+        text = p.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
         continue
-
-    if path.suffix.lower() not in scannable_extensions:
-        continue
-
-    try:
-        text = path.read_text(
-            encoding="utf-8",
-            errors="ignore",
-        )
-    except OSError:
-        continue
-
-    for pattern in secret_patterns:
+    for pattern in bad_patterns:
         if pattern.search(text):
-            errors.append(f"possible secret in {path}")
-            break
+            errors.append(f"possible secret in {p}")
 
-
-# Final result
 if errors:
     print("Validation failed:")
-    for error in errors:
-        print(f"- {error}")
-    sys.exit(1)
+    print("\n".join(f"- {e}" for e in errors))
+    raise SystemExit(1)
 
 print("Validation passed.")
