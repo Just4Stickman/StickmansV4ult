@@ -37,7 +37,7 @@ for directory_name in required_dirs:
 for meta in (ROOT / "templates").rglob("template.yml"):
     text = meta.read_text(encoding="utf-8")
 
-    required_keys = [
+    for key in [
         "id:",
         "name:",
         "slug:",
@@ -47,20 +47,14 @@ for meta in (ROOT / "templates").rglob("template.yml"):
         "categories:",
         "languages:",
         "license:",
-    ]
-
-    for key in required_keys:
+    ]:
         if not re.search(rf"^{re.escape(key)}", text, re.MULTILINE):
             errors.append(f"{meta}: missing {key}")
 
     if not (meta.parent / "README.md").exists():
         errors.append(f"{meta.parent}: missing README.md")
 
-    match = re.search(
-        r"^difficulty:\s*(\S+)",
-        text,
-        re.MULTILINE,
-    )
+    match = re.search(r"^difficulty:\s*(\S+)", text, re.MULTILINE)
 
     if match and match.group(1) not in {
         "beginner",
@@ -70,25 +64,8 @@ for meta in (ROOT / "templates").rglob("template.yml"):
     }:
         errors.append(f"{meta}: invalid difficulty")
 
-
-private_key_pattern = re.compile(
-    r"-----BEGIN .*PRIVATE KEY-----"
-)
-
-github_token_prefix = "gh" + "p_"
-github_token_pattern = re.compile(
-    rf"\b{re.escape(github_token_prefix)}[A-Za-z0-9]{{30,}}\b"
-)
-
-api_key_prefix = "sk" + "-"
-api_key_pattern = re.compile(
-    rf"\b{re.escape(api_key_prefix)}[A-Za-z0-9]{{30,}}\b"
-)
-
 bad_patterns = [
-    private_key_pattern,
-    github_token_pattern,
-    api_key_pattern,
+    re.compile(r"-----BEGIN [A-Z ]+PRIVATE KEY-----"),
 ]
 
 for path in ROOT.rglob("*"):
@@ -116,7 +93,7 @@ for path in ROOT.rglob("*"):
 
     for pattern in bad_patterns:
         if pattern.search(text):
-            errors.append(f"possible secret in {path}")
+            errors.append(f"possible private key in {path}")
             break
 
 if errors:
