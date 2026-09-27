@@ -3,7 +3,6 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SELF_PATH = Path(__file__).resolve()
 errors = []
 
 required_files = [
@@ -27,18 +26,18 @@ required_dirs = [
     ".github",
 ]
 
-for f in required_files:
-    if not (ROOT / f).is_file():
-        errors.append(f"missing file: {f}")
+for file_name in required_files:
+    if not (ROOT / file_name).is_file():
+        errors.append(f"missing file: {file_name}")
 
-for d in required_dirs:
-    if not (ROOT / d).is_dir():
-        errors.append(f"missing directory: {d}")
+for directory_name in required_dirs:
+    if not (ROOT / directory_name).is_dir():
+        errors.append(f"missing directory: {directory_name}")
 
 for meta in (ROOT / "templates").rglob("template.yml"):
     text = meta.read_text(encoding="utf-8")
 
-    for key in [
+    required_keys = [
         "id:",
         "name:",
         "slug:",
@@ -48,16 +47,22 @@ for meta in (ROOT / "templates").rglob("template.yml"):
         "categories:",
         "languages:",
         "license:",
-    ]:
+    ]
+
+    for key in required_keys:
         if not re.search(rf"^{re.escape(key)}", text, re.MULTILINE):
             errors.append(f"{meta}: missing {key}")
 
     if not (meta.parent / "README.md").exists():
         errors.append(f"{meta.parent}: missing README.md")
 
-    m = re.search(r"^difficulty:\s*(\S+)", text, re.MULTILINE)
+    match = re.search(
+        r"^difficulty:\s*(\S+)",
+        text,
+        re.MULTILINE,
+    )
 
-    if m and m.group(1) not in {
+    if match and match.group(1) not in {
         "beginner",
         "intermediate",
         "advanced",
@@ -65,25 +70,32 @@ for meta in (ROOT / "templates").rglob("template.yml"):
     }:
         errors.append(f"{meta}: invalid difficulty")
 
+
+private_key_pattern = re.compile(
+    r"-----BEGIN .*PRIVATE KEY-----"
+)
+
+github_token_prefix = "gh" + "p_"
+github_token_pattern = re.compile(
+    rf"\b{re.escape(github_token_prefix)}[A-Za-z0-9]{{30,}}\b"
+)
+
+api_key_prefix = "sk" + "-"
+api_key_pattern = re.compile(
+    rf"\b{re.escape(api_key_prefix)}[A-Za-z0-9]{{30,}}\b"
+)
+
 bad_patterns = [
-    re.compile(r"-----BEGIN .*PRIVATE KEY-----"),
-    re.compile(r"\bghp_[A-Za-z0-9]{30,}\b"),
-    re.compile(r"\bsk-[A-Za-z0-9]{30,}\b"),
+    private_key_pattern,
+    github_token_pattern,
+    api_key_pattern,
 ]
 
-for p in ROOT.rglob("*"):
-    if not p.is_file() or ".git" in p.parts:
+for path in ROOT.rglob("*"):
+    if not path.is_file() or ".git" in path.parts:
         continue
 
-    try:
-        resolved = p.resolve()
-    except OSError:
-        continue
-
-    if resolved == SELF_PATH:
-        continue
-
-    if p.suffix.lower() not in {
+    if path.suffix.lower() not in {
         ".md",
         ".txt",
         ".yml",
@@ -98,17 +110,18 @@ for p in ROOT.rglob("*"):
         continue
 
     try:
-        text = p.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
+        text = path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
         continue
 
     for pattern in bad_patterns:
         if pattern.search(text):
-            errors.append(f"possible secret in {p}")
+            errors.append(f"possible secret in {path}")
+            break
 
 if errors:
     print("Validation failed:")
-    print("\n".join(f"- {e}" for e in errors))
+    print("\n".join(f"- {error}" for error in errors))
     raise SystemExit(1)
 
 print("Validation passed.")
