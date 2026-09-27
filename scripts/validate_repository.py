@@ -3,7 +3,7 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-CURRENT_FILE = Path(__file__).resolve()
+SELF_PATH = Path(__file__).resolve()
 errors = []
 
 required_files = [
@@ -75,8 +75,12 @@ for p in ROOT.rglob("*"):
     if not p.is_file() or ".git" in p.parts:
         continue
 
-    # Never scan this validator itself.
-    if p.name == "validate_repository.py" and p.parent.name == "scripts":
+    try:
+        resolved = p.resolve()
+    except OSError:
+        continue
+
+    if resolved == SELF_PATH:
         continue
 
     if p.suffix.lower() not in {
@@ -108,4 +112,3 @@ if errors:
     raise SystemExit(1)
 
 print("Validation passed.")
-
