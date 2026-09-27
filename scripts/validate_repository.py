@@ -1,9 +1,9 @@
-```python
 from pathlib import Path
 import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+CURRENT_FILE = Path(__file__).resolve()
 errors = []
 
 required_files = [
@@ -71,13 +71,12 @@ bad_patterns = [
     re.compile(r"\bsk-[A-Za-z0-9]{30,}\b"),
 ]
 
-current_file = Path(__file__).resolve()
-
 for p in ROOT.rglob("*"):
     if not p.is_file() or ".git" in p.parts:
         continue
 
-    if p.resolve() == current_file:
+    # Never scan this validator itself.
+    if p.name == "validate_repository.py" and p.parent.name == "scripts":
         continue
 
     if p.suffix.lower() not in {
@@ -109,26 +108,4 @@ if errors:
     raise SystemExit(1)
 
 print("Validation passed.")
-```
 
-Danach in PowerShell:
-
-```powershell
-python scripts/validate_repository.py
-```
-
-Wenn kommt:
-
-```text
-Validation passed.
-```
-
-dann:
-
-```powershell
-git add scripts/validate_repository.py
-git commit -m "Fix repository validation"
-git push
-```
-
-Dann startet GitHub Actions erneut und sollte den vorherigen Fehler nicht mehr wegen dieser Datei bekommen.
